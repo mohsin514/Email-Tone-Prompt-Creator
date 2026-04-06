@@ -40,7 +40,7 @@ export function LoginPage() {
             <Mail className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">Welcome Back</h1>
-          <p className="text-lg text-slate-500 font-medium">Sign in to your Email Analyzer account</p>
+          <p className="text-lg text-slate-500 font-medium">Sign in to your Email Tone Prompt Creator account</p>
         </div>
 
         {/* Card */}

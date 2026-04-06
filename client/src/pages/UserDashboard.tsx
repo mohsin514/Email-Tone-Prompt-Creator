@@ -167,7 +167,7 @@ export function UserDashboard() {
               <Mail className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Email Analyzer</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Email Tone Prompt Creator</h1>
               <p className="text-sm text-gray-600">
                 Welcome back, <span className="font-semibold">{user?.name}</span>
                 {isGmailLinked && <span className="ml-2 text-green-600">✓ Gmail Linked</span>}

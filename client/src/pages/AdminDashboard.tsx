@@ -85,7 +85,7 @@ export function AdminDashboard() {
     <div className="admin-app">
       <header className="admin-header">
         <div>
-          <h1>Email tone admin</h1>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Email Tone Prompt Creator Admin</h1>
           <p className="muted sub">Monitor queues, users, and processing jobs.</p>
         </div>
         <div className="header-actions">

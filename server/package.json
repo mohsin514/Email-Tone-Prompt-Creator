@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
+    "lint": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
