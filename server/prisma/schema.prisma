@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?  @map("password_hash")
+  provider     String   @default("password") // password | gmail | outlook | imap
+  
+  // Gmail OAuth Fields
+  gmailAccessToken  String?   @map("gmail_access_token")
+  gmailRefreshToken String?   @map("gmail_refresh_token")
+  gmailTokenExpiry  DateTime? @map("gmail_token_expiry")
+  gmailLinkedAt     DateTime? @map("gmail_linked_at")
+  gmailEmail        String?   @map("gmail_email")
+  
+  apiKey       String   @unique @default(cuid()) @map("api_key")
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  emails         Email[]
+  tonePrompts    TonePrompt[]
+  processingJobs ProcessingJob[]
+
+  @@map("users")
+}
+
+model Email {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  providerId String   @map("provider_id")
+  subject    String?
+  body       String
+  recipients Json?
+  sentAt     DateTime @map("sent_at")
+  context    String?  // auto-classified: client | internal | casual
+  metadata   Json     @default("{}")
+  
+  // Tone Analysis Fields
+  tone              String?   @default("neutral") // professional | casual | formal | friendly | neutral
+  sentiment         String?   @default("neutral") // positive | negative | neutral
+  confidenceScore   Float     @default(0.0) @map("confidence_score")
+  keywords          Json      @default("[]")
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  analyzedAt   DateTime? @map("analyzed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+  @@index([userId])
+  @@index([userId, context])
+  @@index([tone])
+  @@map("emails")
+}
+
+model TonePrompt {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  context        String   @default("general") // client | internal | casual | general
+  version        Int      @default(1)
+  toneText       String   @map("tone_text")
+  styleTraits    Json     @default("{}") @map("style_traits")
+  qualityScore   Float    @default(0) @map("quality_score")
+  emailCount     Int      @default(0) @map("email_count")
+  consistency    Float    @default(0)
+  recencyScore   Float    @default(0) @map("recency_score")
+  status         String   @default("active") // active | superseded | draft
+  jobId          String?  @map("job_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  ProcessingJob? @relation(fields: [jobId], references: [id])
+
+  @@unique([userId, context, version])
+  @@index([userId, context, status])
+  @@map("tone_prompts")
+}
+
+model ProcessingJob {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  type         String    @default("tone_analysis") // tone_analysis | email_fetch
+  status       String    @default("pending") // pending | processing | completed | failed
+  context      String?
+  errorMessage String?   @map("error_message")
+  attempts     Int       @default(0)
+  maxAttempts  Int       @default(3) @map("max_attempts")
+  metadata     Json      @default("{}")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tonePrompts TonePrompt[]
+
+  @@index([status])
+  @@index([userId])
+  @@map("processing_jobs")
+}
